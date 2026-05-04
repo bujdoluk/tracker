@@ -50,8 +50,6 @@ class PasswordResetController extends Controller
             return redirect()->route('login')->with('status', __($status));
         }
 
-        logger()->debug('Password reset failed', ['status' => $status, 'email' => $requestData['email'] ?? null]);
-
         return back()->withInput($request->only('email'))->withErrors(['email' => 'Failed to reset a password']);
     }
 }
