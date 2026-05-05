@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
  * @property int $id
@@ -40,14 +41,24 @@ use Illuminate\Database\Eloquent\Collection;
  * @method static Builder<static>|User wherePassword($value)
  * @method static Builder<static>|User whereRememberToken($value)
  * @method static Builder<static>|User whereUpdatedAt($value)
+ * @property string $uuid
+ * @property-read Collection<int, \App\Models\Category> $categories
+ * @property-read int|null $categories_count
+ * @method static Builder<static>|User whereUuid($value)
  * @mixin \Eloquent
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
+    use HasUuids;
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    public function getRouteKey()
+    {
+        return 'uuid';
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -65,5 +76,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    // This overrides uniqueIds() method in a HasUniqueStringsIds.php and sets id to uuid correctly
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
     }
 }

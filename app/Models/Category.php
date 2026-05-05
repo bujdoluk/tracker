@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
  * @property int $id
@@ -27,10 +28,19 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder<static>|Category whereName($value)
  * @method static Builder<static>|Category whereUpdatedAt($value)
  * @method static Builder<static>|Category whereUserId($value)
+ * @property string $uuid
+ * @method static Builder<static>|Category whereUuid($value)
  * @mixin \Eloquent
  */
 class Category extends Model
 {
+    use HasUuids;
+
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -39,5 +49,11 @@ class Category extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    // This overrides uniqueIds() method in a HasUniqueStringsIds.php and sets id to uuid correctly
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
     }
 }
